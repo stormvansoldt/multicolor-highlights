@@ -305,6 +305,13 @@ public interface MulticolorHighlightsConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+			keyName = "group5Npcs",
+			name = "",
+			description = ""
+	)
+	void setNpcToGroup5(String npcsToHighlight);
+
 /**
  *  Group 6
  */

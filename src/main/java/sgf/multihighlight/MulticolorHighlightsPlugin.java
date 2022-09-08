@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.Text;
 import net.runelite.client.util.WildcardMatcher;
 import net.runelite.client.callback.ClientThread;
@@ -60,8 +62,7 @@ import net.runelite.client.callback.ClientThread;
 
 public class MulticolorHighlightsPlugin extends Plugin
 {
-	private static final String TAG1 = "Tag-1";
-	private static final String TAG2 = "Tag-2";
+	private static final String TAG = "Tag-";
 
 	@Inject
 	private OverlayManager overlayManager;
@@ -255,28 +256,16 @@ public class MulticolorHighlightsPlugin extends Plugin
 
 		if (menuAction == MenuAction.EXAMINE_NPC && client.isKeyPressed(KeyCode.KC_SHIFT))
 		{
-			// Add tag and tag-all options
+			// Add tag options to Shift-Right click menu
+			Color menuColor = getGroupColor(1);
+
 			if (npc.getName() == null)
 			{
 				return;
 			}
 
-			//final String npcName = npc.getName();
-			//boolean matchesList = highlights.stream()
-			//		.filter(highlight -> !highlight.equalsIgnoreCase(npcName))
-			//		.anyMatch(highlight -> WildcardMatcher.matches(highlight, npcName));
-
-			// Only add Untag-All option to npcs not highlighted by a wildcard entry, because untag-all will not remove wildcards
-
 			client.createMenuEntry(-1)
-					.setOption(TAG2)
-					.setTarget(event.getTarget())
-					.setIdentifier(event.getIdentifier())
-					.setType(MenuAction.RUNELITE)
-					.onClick(this::tag);
-
-			client.createMenuEntry(-1)
-					.setOption(TAG1)
+					.setOption(ColorUtil.prependColorTag(TAG.concat("1"), menuColor))
 					.setTarget(event.getTarget())
 					.setIdentifier(event.getIdentifier())
 					.setType(MenuAction.RUNELITE)
@@ -295,6 +284,14 @@ public class MulticolorHighlightsPlugin extends Plugin
 			return;
 		}
 
-		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "~lmao shit worked~", null);
+		final String name = npc.getName();
+		final List<String> listOfNpcs = new ArrayList<>(getHighlightNames(5));
+
+		if (!listOfNpcs.removeIf(name::equalsIgnoreCase))
+		{
+			listOfNpcs.add(name);
+		}
+
+		config.setNpcToGroup5(Text.toCSV(listOfNpcs));
 	}
 }
