@@ -27,6 +27,7 @@ package sgf.multihighlight;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.Text;
 import net.runelite.client.util.WildcardMatcher;
@@ -52,8 +54,11 @@ import net.runelite.client.callback.ClientThread;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Multicolor Highlights"
+	name = "Multicolor Highlights",
+	description = "Set different color overlays for different NPCs",
+	loadWhenOutdated = true
 )
+
 public class MulticolorHighlightsPlugin extends Plugin
 {
 	@Inject
@@ -71,6 +76,9 @@ public class MulticolorHighlightsPlugin extends Plugin
 	@Inject
 	private ClientThread clientThread;
 
+	@Inject
+	private ClientToolbar clientToolbar;
+
 	/**
 	 * NPCs in each highlight group
 	 */
@@ -80,14 +88,16 @@ public class MulticolorHighlightsPlugin extends Plugin
 	private final Set<NPC> highlights4 = new HashSet<>();
 	private final Set<NPC> highlights5 = new HashSet<>();
 	private final Set<NPC> highlights6 = new HashSet<>();
+	private final Set<NPC> highlights7 = new HashSet<>();
 
 	@Getter(AccessLevel.PACKAGE)
 	private final List<Set<NPC>> groupHighlights = ImmutableList.of(
-		highlights1, highlights2, highlights3, highlights4, highlights5, highlights6
+			highlights1, highlights2, highlights3, highlights4, highlights5, highlights6, highlights7
 	);
 
 	@Override
-	protected void startUp() throws Exception {
+	protected void startUp() throws Exception
+	{
 		overlayManager.add(overlay);
 		clientThread.invoke(() -> {
 			buildHighlights();
@@ -95,7 +105,8 @@ public class MulticolorHighlightsPlugin extends Plugin
 	}
 
 	@Override
-	protected void shutDown() throws Exception {
+	protected void shutDown() throws Exception
+	{
 		overlayManager.remove(overlay);
 		clientThread.invoke(() -> {
 			for (Set<NPC> highlights : groupHighlights) {
@@ -181,6 +192,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 4: npcCsv = config.getNpcs4(); break;
 			case 5: npcCsv = config.getNpcs5(); break;
 			case 6: npcCsv = config.getNpcs6(); break;
+			case 7: npcCsv = config.getNpcs7(); break;
 		}
 		return Text.fromCSV(npcCsv);
 	}
@@ -193,6 +205,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 4: return config.getGroup4Color();
 			case 5: return config.getGroup5Color();
 			case 6: return config.getGroup6Color();
+			case 7: return config.getGroup7Color();
 		}
 		return null;
 	}
@@ -207,6 +220,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 4: alpha = config.getGroup4FillAlpha(); break;
 			case 5: alpha = config.getGroup5FillAlpha(); break;
 			case 6: alpha = config.getGroup6FillAlpha(); break;
+			case 7: alpha = config.getGroup7FillAlpha(); break;
 			default: return null;
 		}
 		Color color = getGroupColor(groupNum);

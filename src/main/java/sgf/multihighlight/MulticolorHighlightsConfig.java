@@ -352,4 +352,51 @@ public interface MulticolorHighlightsConfig extends Config
 		return "";
 	}
 
+	/**
+	 *  Group 7
+	 */
+	@ConfigSection(
+			name = "Group 7",
+			description = "Group 7 highlight list and color",
+			position = 7
+	)
+	String group7Section = "group7";
+
+	@Alpha
+	@ConfigItem(
+			position = 21,
+			keyName = "group7Color",
+			name = "Color 7",
+			description = "Color for group 7 highlights",
+			section = group7Section
+	)
+	default Color getGroup7Color() {
+		return Color.MAGENTA;
+	}
+
+	@Range(
+			max = 255
+	)
+	@ConfigItem(
+			position = 22,
+			keyName = "group7FillAlpha",
+			name = "Fill Alpha 7",
+			description = "Alpha (transparency) for hull fill highlight color",
+			section = group7Section
+	)
+	default int getGroup7FillAlpha() {
+		return 75;
+	}
+
+	@ConfigItem(
+			position = 23,
+			keyName = "group7Npcs",
+			name = "NPCs to highlight with Color 7",
+			description = "NPCs to highlight with Color 7",
+			section = group7Section
+	)
+	default String getNpcs7() {
+		return "";
+	}
+
 }
