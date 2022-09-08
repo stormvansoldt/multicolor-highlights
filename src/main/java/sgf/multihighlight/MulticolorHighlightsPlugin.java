@@ -96,16 +96,14 @@ public class MulticolorHighlightsPlugin extends Plugin
 	);
 
 	@Override
-	protected void startUp() throws Exception
+	protected void startUp()
 	{
 		overlayManager.add(overlay);
-		clientThread.invoke(() -> {
-			buildHighlights();
-		});
+		clientThread.invoke(this::buildHighlights);
 	}
 
 	@Override
-	protected void shutDown() throws Exception
+	protected void shutDown()
 	{
 		overlayManager.remove(overlay);
 		clientThread.invoke(() -> {
@@ -212,7 +210,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 
 	protected Color getGroupFillColor(final int groupNum) {
 		// use additional setting for fill opacity so there can be a visible outline
-		int alpha = 0;
+		int alpha;
 		switch (groupNum) {
 			case 1: alpha = config.getGroup1FillAlpha(); break;
 			case 2: alpha = config.getGroup2FillAlpha(); break;
