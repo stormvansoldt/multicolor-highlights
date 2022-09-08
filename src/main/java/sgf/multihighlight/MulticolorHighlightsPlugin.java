@@ -35,10 +35,9 @@ import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.NPC;
+import net.runelite.api.*;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.client.config.ConfigManager;
@@ -61,6 +60,9 @@ import net.runelite.client.callback.ClientThread;
 
 public class MulticolorHighlightsPlugin extends Plugin
 {
+	private static final String TAG1 = "Tag-1";
+	private static final String TAG2 = "Tag-2";
+
 	@Inject
 	private OverlayManager overlayManager;
 
@@ -127,6 +129,8 @@ public class MulticolorHighlightsPlugin extends Plugin
 		if (!configChanged.getGroup().equals("multicolorhighlights")) return;
 		clientThread.invoke(this::buildHighlights);
 	}
+
+
 
 	@Subscribe
 	public void onNpcSpawned(NpcSpawned npcSpawned) {
@@ -232,5 +236,65 @@ public class MulticolorHighlightsPlugin extends Plugin
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Adds a shift-right click menu option to add the NPC to one of the color groups
+	 */
+	@Subscribe
+	public void onMenuEntryAdded(MenuEntryAdded event)
+	{
+		final MenuEntry menuEntry = event.getMenuEntry();
+		final MenuAction menuAction = menuEntry.getType();
+		final NPC npc = menuEntry.getNpc();
+
+		if (npc == null)
+		{
+			return;
+		}
+
+		if (menuAction == MenuAction.EXAMINE_NPC && client.isKeyPressed(KeyCode.KC_SHIFT))
+		{
+			// Add tag and tag-all options
+			if (npc.getName() == null)
+			{
+				return;
+			}
+
+			//final String npcName = npc.getName();
+			//boolean matchesList = highlights.stream()
+			//		.filter(highlight -> !highlight.equalsIgnoreCase(npcName))
+			//		.anyMatch(highlight -> WildcardMatcher.matches(highlight, npcName));
+
+			// Only add Untag-All option to npcs not highlighted by a wildcard entry, because untag-all will not remove wildcards
+
+			client.createMenuEntry(-1)
+					.setOption(TAG2)
+					.setTarget(event.getTarget())
+					.setIdentifier(event.getIdentifier())
+					.setType(MenuAction.RUNELITE)
+					.onClick(this::tag);
+
+			client.createMenuEntry(-1)
+					.setOption(TAG1)
+					.setTarget(event.getTarget())
+					.setIdentifier(event.getIdentifier())
+					.setType(MenuAction.RUNELITE)
+					.onClick(this::tag);
+		}
+	}
+
+	private void tag(MenuEntry entry)
+	{
+		final int id = entry.getIdentifier();
+		final NPC[] cachedNPCs = client.getCachedNPCs();
+		final NPC npc = cachedNPCs[id];
+
+		if (npc == null || npc.getName() == null)
+		{
+			return;
+		}
+
+		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "~lmao shit worked~", null);
 	}
 }
