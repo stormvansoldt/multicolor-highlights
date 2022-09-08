@@ -79,10 +79,11 @@ public class MulticolorHighlightsPlugin extends Plugin
 	private final Set<NPC> highlights3 = new HashSet<>();
 	private final Set<NPC> highlights4 = new HashSet<>();
 	private final Set<NPC> highlights5 = new HashSet<>();
+	private final Set<NPC> highlights6 = new HashSet<>();
 
 	@Getter(AccessLevel.PACKAGE)
 	private final List<Set<NPC>> groupHighlights = ImmutableList.of(
-		highlights1, highlights2, highlights3, highlights4, highlights5
+		highlights1, highlights2, highlights3, highlights4, highlights5, highlights6
 	);
 
 	@Override
@@ -179,6 +180,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 3: npcCsv = config.getNpcs3(); break;
 			case 4: npcCsv = config.getNpcs4(); break;
 			case 5: npcCsv = config.getNpcs5(); break;
+			case 6: npcCsv = config.getNpcs6(); break;
 		}
 		return Text.fromCSV(npcCsv);
 	}
@@ -190,6 +192,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 3: return config.getGroup3Color();
 			case 4: return config.getGroup4Color();
 			case 5: return config.getGroup5Color();
+			case 6: return config.getGroup6Color();
 		}
 		return null;
 	}
@@ -203,6 +206,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 			case 3: alpha = config.getGroup3FillAlpha(); break;
 			case 4: alpha = config.getGroup4FillAlpha(); break;
 			case 5: alpha = config.getGroup5FillAlpha(); break;
+			case 6: alpha = config.getGroup6FillAlpha(); break;
 			default: return null;
 		}
 		Color color = getGroupColor(groupNum);
