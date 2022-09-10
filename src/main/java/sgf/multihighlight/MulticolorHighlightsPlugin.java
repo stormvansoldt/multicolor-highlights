@@ -24,9 +24,11 @@
  */
 package sgf.multihighlight;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,8 +49,10 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
+import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
+import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.Text;
 import net.runelite.client.util.WildcardMatcher;
 import net.runelite.client.callback.ClientThread;
@@ -63,6 +67,10 @@ import net.runelite.client.callback.ClientThread;
 public class MulticolorHighlightsPlugin extends Plugin
 {
 	private static final String TAG = "Tag-";
+	private static final String PLUGIN_NAME = "Multicolor Highlights";
+	private static final String CONFIG_GROUP = "multihighlights";
+	private static final String CONFIG_KEY = "group1Color";
+	private static final String ICON_FILE = "panel_icon.png";
 
 	@Inject
 	private OverlayManager overlayManager;
@@ -81,6 +89,10 @@ public class MulticolorHighlightsPlugin extends Plugin
 
 	@Inject
 	private ClientToolbar clientToolbar;
+
+	private MouseListener mouseListener;
+	private MulticolorHighlightsPanel pluginPanel;
+	private NavigationButton navigationButton;
 
 	/**
 	 * NPCs in each highlight group
@@ -102,6 +114,21 @@ public class MulticolorHighlightsPlugin extends Plugin
 	protected void startUp()
 	{
 		overlayManager.add(overlay);
+
+		pluginPanel = new MulticolorHighlightsPanel(this);
+		//pluginPanel.rebuild();
+
+		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), ICON_FILE);
+
+		navigationButton = NavigationButton.builder()
+			.tooltip(PLUGIN_NAME)
+			.icon(icon)
+			.priority(5)
+			.panel(pluginPanel)
+			.build();
+
+		clientToolbar.addNavigation(navigationButton);
+
 		clientThread.invoke(this::buildHighlights);
 	}
 
