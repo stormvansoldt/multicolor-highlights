@@ -115,7 +115,7 @@ public class MulticolorHighlightsPlugin extends Plugin
 	{
 		overlayManager.add(overlay);
 
-		pluginPanel = new MulticolorHighlightsPanel(this);
+		pluginPanel = new MulticolorHighlightsPanel(this, config);
 		//pluginPanel.rebuild();
 
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), ICON_FILE);

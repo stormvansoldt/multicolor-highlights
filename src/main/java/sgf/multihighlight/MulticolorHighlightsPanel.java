@@ -34,9 +34,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -53,12 +55,17 @@ public class MulticolorHighlightsPanel extends PluginPanel
 	private static final ImageIcon ADD_ICON;
 	private static final ImageIcon ADD_HOVER_ICON;
 
+	// Display this panel if there is no saved color configurations
+	private final PluginErrorPanel noColorsPanel = new PluginErrorPanel();
+
+	// Title panel data
+	private final JPanel titlePanel;
 	private final JLabel addGroup = new JLabel(ADD_ICON);
 	private final JLabel title = new JLabel();
-	private final PluginErrorPanel noColorsPanel = new PluginErrorPanel();
 	private final JPanel groupsView = new JPanel(new GridBagLayout());
 
 	private final MulticolorHighlightsPlugin plugin;
+	private final MulticolorHighlightsConfig config;
 
 	static
 	{
@@ -67,38 +74,46 @@ public class MulticolorHighlightsPanel extends PluginPanel
 		ADD_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(addIcon, 0.53f));
 	}
 
-	public MulticolorHighlightsPanel(MulticolorHighlightsPlugin multicolorHighlightsPlugin)
+	public MulticolorHighlightsPanel(MulticolorHighlightsPlugin plugin, MulticolorHighlightsConfig config)
 	{
-		this.plugin = multicolorHighlightsPlugin;
+		this.plugin = plugin;
+		this.config = config;
 
 		setLayout(new BorderLayout());
 		setBorder(new EmptyBorder(10, 10, 10, 10));
+		setBackground(ColorScheme.DARK_GRAY_COLOR);
 
-		JPanel northPanel = new JPanel(new BorderLayout());
-		northPanel.setBorder(new EmptyBorder(1, 0, 10, 0));
+		// Create layout panel for wrapping
+		final JPanel layoutPanel = new JPanel();
+		layoutPanel.setBackground(ColorScheme.GRAND_EXCHANGE_LIMIT);
+		layoutPanel.setLayout(new BoxLayout(layoutPanel, BoxLayout.Y_AXIS));
+		add(layoutPanel, BorderLayout.NORTH);
+
+		// Top title panel with plugin name and "Add new group" icon
+		titlePanel = buildTitlePanel();
+
+		layoutPanel.add(titlePanel);
+
+		// Add default panel if no color groups exist
+		noColorsPanel.setContent("Multicolor Highlights", "Tag and highlight NPCs in different colors.");
+		//add(noColorsPanel);
+	}
+
+	/**
+	 * Creates the panel which holds the name of the plugin and the "add new" color group.
+	 * This panel sits at the very top of the overall panel view.
+	 */
+	private JPanel buildTitlePanel()
+	{
+		final JPanel titleContainer = new JPanel();
+		titleContainer.setLayout(new BorderLayout());
+		titleContainer.setBorder(new EmptyBorder(1, 0, 10, 0));
+		titleContainer.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		titleContainer.add(title, BorderLayout.WEST);
+		titleContainer.add(addGroup, BorderLayout.EAST);
 
 		title.setText("Multi Color NPC Highlights");
 		title.setForeground(Color.WHITE);
-
-		northPanel.add(title, BorderLayout.WEST);
-		northPanel.add(addGroup, BorderLayout.EAST);
-
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		centerPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-
-		groupsView.setBackground(ColorScheme.DARK_GRAY_COLOR);
-
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 1;
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-
-		noColorsPanel.setContent("Multicolor Highlights", "Tag and highlight NPCs in different colors.");
-		noColorsPanel.setVisible(false);
-
-		groupsView.add(noColorsPanel, constraints);
-		constraints.gridy++;
 
 		addGroup.setToolTipText("Add new color group");
 		addGroup.addMouseListener(new MouseAdapter()
@@ -122,9 +137,6 @@ public class MulticolorHighlightsPanel extends PluginPanel
 			}
 		});
 
-		centerPanel.add(groupsView, BorderLayout.CENTER);
-
-		add(northPanel, BorderLayout.NORTH);
-		add(centerPanel, BorderLayout.CENTER);
+		return titleContainer;
 	}
 }
